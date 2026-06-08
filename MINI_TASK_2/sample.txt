@@ -1,0 +1,3 @@
+Hello from Terraform!
+
+This file was uploaded automatically to AWS S3.
