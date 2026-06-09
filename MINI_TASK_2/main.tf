@@ -12,13 +12,13 @@ locals {
 
 
 resource "aws_s3_bucket" "buckets" {
-    count = 3
+    count = var.bucket_count
     bucket = "${var.base_bucket_name}-${count.index + 1}"
     tags = local.common_tags
 }
 
 resource "aws_s3_object" "sample_file" {
-    count = 3
+    count = var.bucket_count
     bucket = aws_s3_bucket.buckets[count.index].id
     key    = var.object_file_upload
     source = var.object_file_upload
