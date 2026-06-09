@@ -20,7 +20,7 @@ resource "aws_s3_bucket" "buckets" {
 resource "aws_s3_object" "sample_file" {
     count = 3
     bucket = aws_s3_bucket.buckets[count.index].id
-    key    = "sample.txt"
-    source = "sample.txt"
-    etag = filemd5("sample.txt")
+    key    = var.object_file_upload
+    source = var.object_file_upload
+    etag = filemd5(var.object_file_upload)
 }
