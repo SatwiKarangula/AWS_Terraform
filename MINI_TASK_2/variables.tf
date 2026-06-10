@@ -3,14 +3,9 @@ variable "aws_region" {
   type        = string
 }
 
-variable "bucket_count"{
-  description = "Number of S3 buckets to create"
-  type = number
-}
-
-variable "base_bucket_name" {
-  description = "Base bucket name"
-  type        = string
+variable "bucket_names" {
+  description = "Consists of different bucket names"
+  type        = list(string)
 }
 
 variable "object_file_upload" {
