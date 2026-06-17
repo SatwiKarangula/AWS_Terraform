@@ -1,17 +1,21 @@
-variable "aws_region" {
-  type = string
-}
-
 variable "db_identifier" {
-  type = string
+    type = string
 }
 
 variable "db_username" {
-  type = string
+    type = string
 }
 
 variable "db_password" {
-  sensitive = true
+    type = string
+}
+
+variable "common_tags" {
+    type = map(string)
+}
+
+variable "instance_class" {
+    type = string
 }
 
 variable "engine" {
@@ -28,14 +32,4 @@ variable "backup_retention" {
 
 variable "allocated_storage" {
     type = number   
-}
-
-variable "instance_class" {
-    type = string
-}
-variable "aws_secrets_directory" {
-    type = string  
-}
-variable "aws_secrets_db_name" {
-    type = string
 }

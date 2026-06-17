@@ -1,71 +1,37 @@
-# Oracle RDS Provisioning and Secrets Management using Terraform
+# Oracle RDS Provisioning, Secrets Management, and User Onboarding using Terraform
 
 ## Project Overview
 
-This project demonstrates the use of Terraform to provision an Oracle RDS instance on AWS and securely manage database credentials using AWS Secrets Manager.
+This project demonstrates Infrastructure as Code (IaC) using Terraform to automate the deployment of an Oracle RDS database on AWS, securely manage credentials using AWS Secrets Manager, and automate database user provisioning through Python.
 
-The objective of the project is to automate database infrastructure deployment, implement secure credential management, and follow Infrastructure as Code (IaC) best practices.
+The project follows Terraform best practices, modular design principles, resource tagging standards, and secure credential management.
 
 ---
 
 # Objectives
 
-## Part 1: Oracle RDS Provisioning
+The project is divided into three major parts:
 
-Provision an Oracle RDS instance with:
+### Part 1 – Oracle RDS Provisioning
 
-* Oracle Database Engine
-* Instance Type: db.t3.small
-* Allocated Storage: 20 GB
-* Storage Encryption Enabled
-* Backup Retention Period: 0 Days
-* Resource Tagging
-* Reusable Terraform Module
+* Deploy an Oracle RDS instance using Terraform
+* Enable storage encryption
+* Configure storage and backup settings
+* Apply standard resource tags
+* Generate Terraform outputs
 
-## Part 2: AWS Secrets Manager Integration
+### Part 2 – Secrets Manager Integration
 
-Store Oracle RDS connection details and credentials securely in AWS Secrets Manager.
+* Store Oracle RDS connection details securely
+* Store master credentials in AWS Secrets Manager
+* Avoid hardcoding sensitive information
 
-Stored information includes:
+### Part 3 – User Provisioning and Secret Onboarding
 
-* Endpoint
-* Port
-* Database Name
-* Master Username
-* Password
-
----
-
-# Technologies Used
-
-* Terraform
-* AWS RDS
-* Oracle Database
-* AWS Secrets Manager
-* AWS CLI
-* Git
-* GitHub
-
----
-
-# Project Structure
-
-```text
-terraform-oracle-rds/
-│
-├── provider.tf
-├── variables.tf
-├── terraform.tfvars
-├── main.tf
-├── outputs.tf
-├── README.md
-│
-└── modules/
-    └── oracle-rds/
-        ├── main.tf
-        ├── variables.tf
-        └── outputs.tf
-```
+* Connect to Oracle RDS using master credentials
+* Create database users automatically
+* Store user credentials in AWS Secrets Manager
+* Apply tags based on privilege level
 
 ---
 
@@ -80,137 +46,209 @@ Oracle RDS Instance
     ├── Endpoint
     ├── Port
     ├── Database Name
-    ├── Username
-    └── Password
-            │
-            ▼
+    ├── Master Credentials
+    │
+    ▼
 AWS Secrets Manager
+    │
+    ▼
+Python Automation Script
+    │
+    ├── Create ADMIN User
+    ├── Create RWX User
+    ├── Create READ User
+    │
+    ▼
+AWS Secrets Manager
+    ├── Admin Secret
+    ├── RWX Secret
+    └── Read Secret
+```
+
+---
+
+# Technologies Used
+
+* AWS RDS
+* AWS Secrets Manager
+* Terraform
+* Python
+* Oracle Database
+* AWS CLI
+* Git
+* GitHub
+
+---
+
+# Project Structure
+
+```text
+oracle-rds-project/
+│
+├── versions.tf
+├── provider.tf
+├── variables.tf
+├── terraform.tfvars
+├── main.tf
+├── outputs.tf
+├── README.md
+│
+├── scripts/
+│   ├── user_script.py
+│   └── verify_users.py
+│
+└── modules/
+    └── oracle-rds/
+        ├── main.tf
+        ├── variables.tf
+        └── outputs.tf
 ```
 
 ---
 
 # Resource Tagging
 
-All AWS resources are tagged with:
+All AWS resources are tagged using the following standard:
 
 ```text
 Name = Satwik
 Role = Intern
 ```
 
-Purpose:
+Additional user secrets receive:
 
-* Resource identification
-* Cost tracking
-* Resource management
-* Governance
+```text
+AccessLevel = ADMIN
+AccessLevel = RWX
+AccessLevel = READ
+```
 
 ---
 
 # Part 1 – Oracle RDS Deployment
 
-## Terraform Module
+## Configuration
 
-A reusable Terraform module is created to provision Oracle RDS.
-
-### Configuration
-
-| Parameter        | Value       |
+| Property         | Value       |
 | ---------------- | ----------- |
 | Engine           | Oracle SE2  |
-| Instance Type    | db.t3.small |
+| Instance Class   | db.t3.small |
 | Storage          | 20 GB       |
 | Encryption       | Enabled     |
 | Backup Retention | 0 Days      |
-| Public Access    | Disabled    |
-
-### Benefits of Using a Module
-
-* Reusability
-* Scalability
-* Maintainability
-* Cleaner project structure
 
 ---
 
-# Oracle RDS Resource
+## Terraform Module
 
-The module provisions an Oracle database instance using Terraform.
+The Oracle RDS instance is deployed using a reusable Terraform module.
 
-Features:
+Benefits:
 
-* Automated deployment
-* Encrypted storage
-* Configurable parameters through variables
-* Tagged resources
-* Output values for integration
+* Reusable code
+* Modular structure
+* Easy maintenance
+* Improved scalability
 
 ---
 
-# Required Outputs
+## Terraform Commands
 
-The following outputs are generated after successful deployment:
+### Initialize
 
-## Endpoint
-
-Example:
-
-```text
-satwik-oracle-rds.xxxxxx.ap-south-1.rds.amazonaws.com
+```bash
+terraform init
 ```
 
-## Port
+Downloads required providers and initializes the Terraform project.
 
-```text
-1521
+---
+
+### Validate
+
+```bash
+terraform validate
 ```
 
-## Database Name
+Validates Terraform syntax.
 
-```text
-ORCL
+---
+
+### Plan
+
+```bash
+terraform plan
 ```
 
-## Instance ID
+Shows the infrastructure changes before deployment.
 
-Example:
+---
 
-```text
-satwik-oracle-rds
+### Apply
+
+```bash
+terraform apply
 ```
+
+Creates AWS resources.
+
+---
+
+### Destroy
+
+```bash
+terraform destroy
+```
+
+Removes all AWS resources.
 
 ---
 
 # Terraform Outputs
 
-The project exposes:
+After successful deployment:
 
-```hcl
-output "oracle_endpoint"
-output "oracle_port"
-output "oracle_database_name"
-output "oracle_instance_id"
+```bash
+terraform output
 ```
 
-These outputs can be used by applications, scripts, or AWS Secrets Manager.
+Returns:
+
+* Oracle Endpoint
+* Oracle Port
+* Oracle Instance ID
+
+Example:
+
+```text
+oracle_endpoint = xyz.ap-south-1.rds.amazonaws.com
+oracle_port = 1521
+oracle_instance_id = satwik-oracle-rds
+```
 
 ---
 
-# Part 2 – AWS Secrets Manager Integration
+# Part 2 – AWS Secrets Manager
 
-## Objective
+## Purpose
 
-Store Oracle RDS credentials and connection details securely instead of exposing them directly in configuration files.
+Store database connection information securely without exposing credentials in code.
 
 ---
 
-# Secret Information Stored
+## Secret Name
 
-The following information is stored:
+```text
+satwik/oracle-rds/master-credentials
+```
+
+---
+
+## Stored Information
 
 ```json
 {
-  "endpoint": "satwik-oracle-rds.xxxxxx.ap-south-1.rds.amazonaws.com",
+  "endpoint": "xyz.ap-south-1.rds.amazonaws.com",
   "port": 1521,
   "database_name": "ORCL",
   "master_username": "admin",
@@ -220,257 +258,186 @@ The following information is stored:
 
 ---
 
-# Secret Name
+## Verification
 
-A meaningful secret name is used:
-
-```text
-satwik/oracle-rds/master-credentials
-```
-
-Benefits:
-
-* Easy identification
-* Better organization
-* Supports future automation
-
----
-
-# AWS Secrets Manager Resources
-
-Terraform creates:
-
-## Secret Container
-
-Stores metadata about the secret.
-
-## Secret Version
-
-Stores the actual secret values in JSON format.
-
----
-
-# Security Benefits
-
-Using AWS Secrets Manager provides:
-
-* Secure credential storage
-* Encryption at rest
-* Centralized secret management
-* Reduced credential exposure
-* Easier credential rotation
-
----
-
-# Terraform Workflow
-
-## Step 1: Initialize Terraform
-
-```bash
-terraform init
-```
-
-Purpose:
-
-* Downloads providers
-* Initializes Terraform environment
-* Creates .terraform directory
-
----
-
-## Step 2: Validate Configuration
-
-```bash
-terraform validate
-```
-
-Purpose:
-
-* Checks Terraform syntax
-* Detects configuration issues
-
----
-
-## Step 3: Generate Execution Plan
-
-```bash
-terraform plan
-```
-
-Purpose:
-
-* Preview infrastructure changes
-* Verify resources before deployment
-
-Example Resources:
+AWS Console:
 
 ```text
-+ aws_db_instance.oracle_rds
-+ aws_secretsmanager_secret.oracle_rds_secret
-+ aws_secretsmanager_secret_version.secret_version
-```
-
----
-
-## Step 4: Apply Infrastructure
-
-```bash
-terraform apply
-```
-
-Purpose:
-
-* Creates Oracle RDS
-* Creates Secrets Manager secret
-* Stores connection details
-
-Terraform prompts:
-
-```text
-Do you want to perform these actions?
-```
-
-Enter:
-
-```text
-yes
-```
-
----
-
-## Step 5: Verify Resources
-
-### RDS Verification
-
-Navigate:
-
-```text
-AWS Console
-→ RDS
-→ Databases
-```
-
-Verify:
-
-* Database Status = Available
-* Endpoint Generated
-* Port Generated
-
-### Secrets Manager Verification
-
-Navigate:
-
-```text
-AWS Console
-→ Secrets Manager
+Secrets Manager
 → Secrets
-```
-
-Open:
-
-```text
-satwik/oracle-rds/master-credentials
-```
-
-Select:
-
-```text
-Retrieve Secret Value
-```
-
-Verify:
-
-* Endpoint
-* Port
-* Database Name
-* Username
-* Password
-
----
-
-## Step 6: View Terraform Outputs
-
-```bash
-terraform output
-```
-
-Example:
-
-```text
-oracle_endpoint = satwik-oracle-rds.xxxxxx.ap-south-1.rds.amazonaws.com
-
-oracle_port = 1521
-
-oracle_database_name = ORCL
-
-oracle_instance_id = satwik-oracle-rds
+→ satwik/oracle-rds/master-credentials
+→ Retrieve Secret Value
 ```
 
 ---
 
-## Step 7: Destroy Infrastructure
+# Part 3 – User Provisioning Automation
+
+## Purpose
+
+Automatically create Oracle users and store their credentials securely.
+
+---
+
+## Users Created
+
+| User  | Access Level |
+| ----- | ------------ |
+| admin | ADMIN        |
+| rwx   | Read + Write |
+| read  | Read Only    |
+
+---
+
+## Python Script
+
+File:
+
+```text
+scripts/user_script.py
+```
+
+Functions:
+
+* Retrieve master credentials from Secrets Manager
+* Connect to Oracle RDS
+* Create users
+* Assign privileges
+* Store user credentials in Secrets Manager
+
+---
+
+## User Secrets
+
+Generated secrets:
+
+```text
+satwik/oracle-rds/admin
+satwik/oracle-rds/rwx
+satwik/oracle-rds/read
+```
+
+---
+
+## Secret Tags
+
+### Admin Secret
+
+```text
+Name = Satwik
+Role = Intern
+AccessLevel = ADMIN
+```
+
+### RWX Secret
+
+```text
+Name = Satwik
+Role = Intern
+AccessLevel = RWX
+```
+
+### Read Secret
+
+```text
+Name = Satwik
+Role = Intern
+AccessLevel = READ
+```
+
+---
+
+# Verification Process
+
+## Verify Oracle Connection
+
+Run:
 
 ```bash
-terraform destroy
+python verify_users.py
 ```
 
-Purpose:
-
-* Remove Oracle RDS
-* Remove Secrets Manager resources
-* Avoid unnecessary AWS charges
-
-Terraform prompts:
+Expected:
 
 ```text
-Do you really want to destroy all resources?
+Connected Successfully
 ```
 
-Enter:
+---
+
+## Verify Users
+
+Expected:
 
 ```text
-yes
+Username: ADMIN
+Username: RWX
+Username: READ
 ```
+
+---
+
+## Verify Privileges
+
+Expected:
+
+```text
+ADMIN → DBA
+
+RWX → CONNECT
+RWX → RESOURCE
+
+READ → CONNECT
+```
+
+---
+
+## Verify Secrets
+
+Expected:
+
+```text
+Secret Found: satwik/oracle-rds/admin
+Secret Found: satwik/oracle-rds/rwx
+Secret Found: satwik/oracle-rds/read
+```
+
+---
+
+# Security Considerations
+
+* Sensitive credentials stored in AWS Secrets Manager
+* No credentials hardcoded in Terraform files
+* Secrets separated by privilege level
+* Resource tagging applied consistently
+
+---
+
+# Terraform Standards Followed
+
+* Modular Terraform design
+* Separate variables and outputs
+* No hardcoded resource values
+* Reusable code structure
+* Common tagging strategy
+* Version-controlled infrastructure
 
 ---
 
 # Learning Outcomes
 
-Through this project, I gained practical experience in:
+Through this project, I gained hands-on experience in:
 
-* Infrastructure as Code (IaC)
 * Terraform Modules
-* Oracle RDS Provisioning
+* Infrastructure as Code (IaC)
+* Oracle RDS Deployment
 * AWS Secrets Manager
+* AWS Resource Tagging
+* Python Automation
+* Oracle User Provisioning
 * Secure Credential Management
-* Resource Tagging
-* Terraform Outputs
-* Terraform State Management
-* AWS Cloud Infrastructure
-* Infrastructure Automation
-* Terraform Lifecycle Commands
-
----
-
-# Terraform Lifecycle
-
-```text
-Write Terraform Code
-          ↓
-terraform init
-          ↓
-terraform validate
-          ↓
-terraform plan
-          ↓
-terraform apply
-          ↓
-Verify Resources
-          ↓
-terraform output
-          ↓
-terraform destroy
-```
+* Terraform Best Practices
+* Cloud Infrastructure Automation
 
 ---
 

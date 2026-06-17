@@ -1,41 +1,39 @@
 locals {
-  common_tags = {
-    Name = "Satwik"
-    Role = "Intern"
+    common_tags =  {
+        Name = "Satwik"
+        Role = "Intern" 
   }
 }
 
+module "aws_db_instance" {
+    source = "./modules/oracle-rds"
 
-module "oracle_rds" {
-  source = "./module/oracle-rds"
-  db_identifier = var.db_identifier
-  db_username = var.db_username
-  db_password = var.db_password
-  common_tags = local.common_tags
-  instance_type = var.instance_type
+    db_identifier = var.db_identifier               
+    db_username = var.db_username                   
+    db_password = var.db_password
+    common_tags = local.common_tags
+    instance_class = var.instance_class                 
+    engine = var.engine
+    license_model = var.license_model
+    allocated_storage = var.allocated_storage
+    backup_retention = var.backup_retention
+
 }
 
-resource "aws_s3_bucket" "my_bucket" {
-  bucket = "my-nameless-bucket-of-the-bucket"
-  tags = local.common_tags
+resource "aws_secretsmanager_secret" "my_little_secret" {
+
+    name = var.aws_secrets_directory
+    tags = local.common_tags
 }
 
-resource "aws_secretsmanager_secret" "oracle_rds_secret" {
+resource "aws_secretsmanager_secret_version" "oracle_secret_value" {
 
-  name = "satwik/oracle-rds/master-credentials"
-  description = "Oracle RDS Master Credentials and Connection Details"
-  tags = local.common_tags
-}
-
-resource "aws_secretsmanager_secret_version" "oracle_rds_secret_value" {
-
-  secret_id = aws_secretsmanager_secret.oracle_rds_secret.id
+  secret_id = aws_secretsmanager_secret.my_little_secret.id
   secret_string = jsonencode({
-    endpoint = module.oracle_rds.rds_endpoint
-    port = module.oracle_rds.rds_port
-    database_name = module.oracle_rds.rds_db_name
+    endpoint = module.aws_db_instance.rds_endpoint
+    port = module.aws_db_instance.rds_port
+    database_name = var.aws_secrets_db_name
     master_username = var.db_username
     password = var.db_password
-
   })
 }
