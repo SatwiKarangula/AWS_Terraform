@@ -443,6 +443,6 @@ Through this project, I gained hands-on experience in:
 
 # Author
 
-K. Satwik
-B.Tech – Computer Science Engineering (AI & ML)
-Andhra Loyola Institute of Engineering and Technology
+K. Satwik,
+B.Tech – Computer Science Engineering (AI & ML),
+Andhra Loyola Institute of Engineering and Technology.
