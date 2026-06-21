@@ -37,3 +37,23 @@ resource "aws_secretsmanager_secret_version" "oracle_secret_value" {
     password = var.db_password
   })
 }
+
+resource "null_resource" "user_provisioning" {
+  depends_on = [ 
+    aws_secretsmanager_secret_version.oracle_secret_value,
+    module.aws_db_instance
+   ] 
+   triggers = {
+     always_run = timestamp()
+   }
+   provisioner "local-exec" {
+    command = "python scripts/create_user.py"    
+   }
+}
+
+resource "null_resource" "user_verification" {
+  depends_on = [ null_resource.user_provisioning ]
+  provisioner "local-exec" {
+    command = "python scripts/verify_users.py"
+  }  
+}
